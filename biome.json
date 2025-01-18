@@ -1,0 +1,96 @@
+{
+    "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+    "organizeImports": {
+        "enabled": true
+    },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "all": true,
+            "correctness": {
+                "noNodejsModules": "off"
+            },
+            "performance": {
+                "useTopLevelRegex": "off"
+            },
+            "complexity": {
+                "noExcessiveCognitiveComplexity": "off"
+            },
+            "suspicious": {
+                "noMisplacedAssertion": "off",
+                "noConsole": "off"
+            },
+            "style": {
+                "noDefaultExport": "off",
+                "noParameterProperties": "off",
+                "noNamespaceImport": "off",
+                "useFilenamingConvention": "off",
+                "useDefaultSwitchClause": "off",
+                "useNamingConvention": {
+                    "level": "warn",
+                    "options": {
+                        "requireAscii": false,
+                        "strictCase": false,
+                        "conventions": [
+                            {
+                                "selector": {
+                                    "kind": "typeProperty"
+                                },
+                                "formats": [
+                                    "camelCase",
+                                    "CONSTANT_CASE",
+                                    "PascalCase",
+                                    "snake_case"
+                                ]
+                            },
+                            {
+                                "selector": {
+                                    "kind": "objectLiteralProperty",
+                                    "scope": "any"
+                                },
+                                "formats": [
+                                    "camelCase",
+                                    "CONSTANT_CASE",
+                                    "PascalCase",
+                                    "snake_case"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            "nursery": {
+                "noDuplicateElseIf": "warn",
+                "useConsistentMemberAccessibility": {
+                    "level": "warn",
+                    "options": {
+                        "accessibility": "explicit"
+                    }
+                },
+                "noCommonJs": "warn",
+                "noDynamicNamespaceImportAccess": "warn",
+                "noExportedImports": "warn",
+                "noIrregularWhitespace": "warn",
+                "noSubstr": "warn",
+                "noTemplateCurlyInString": "warn",
+                "noUselessEscapeInRegex": "warn",
+                "noUselessStringRaw": "warn",
+                "useAdjacentOverloadSignatures": "warn",
+                "useExplicitType": "warn",
+                "useGuardForIn": "warn",
+                "useTrimStartEnd": "warn"
+            }
+        }
+    },
+    "formatter": {
+        "enabled": true,
+        "indentStyle": "space",
+        "indentWidth": 4
+    },
+    "javascript": {
+        "globals": ["Bun", "HTMLRewriter", "BufferEncoding"]
+    },
+    "files": {
+        "ignore": ["node_modules", "dist", "cache"]
+    }
+}

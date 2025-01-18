@@ -1,0 +1,26 @@
+{
+    "name": "among-us",
+    "version": "1.0.0",
+    "type": "module",
+    "main": "src/index.js",
+    "scripts": {
+        "start": "bun src/interactive.ts",
+        "lint": "bunx @biomejs/biome check ."
+    },
+    "author": {
+        "name": "Jesse Wierzbinski",
+        "email": "contact@cpluspatch.com",
+        "url": "https://cpluspatch.com"
+    },
+    "license": "AGPL-3.0-only",
+    "devDependencies": {
+        "@biomejs/biome": "^1.9.4",
+        "@types/bun": "^1.1.16"
+    },
+    "dependencies": {
+        "@inquirer/prompts": "^7.2.3",
+        "matrix-js-sdk": "^36.0.0",
+        "ora": "^8.1.1"
+    },
+    "trustedDependencies": ["@biomejs/biome"]
+}
