@@ -88,7 +88,10 @@ export class Impersonator {
         }
 
         if (info.displayname) {
-            await this.client.setDisplayName(info.displayname);
+            // Add zero-width spaces to prevent the display name from being
+            // disambiguated with the original user's display name
+            // U+00AD SOFT HYPHEN
+            await this.client.setDisplayName(`­${info.displayname}­`);
         }
     }
 
