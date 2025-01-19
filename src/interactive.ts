@@ -1,101 +1,58 @@
-import ora from "ora";
-import { input, select } from "@inquirer/prompts";
-import { Impersonator } from "./impersonator.ts";
 import { createInterface } from "node:readline/promises";
+import { Impersonator } from "./impersonator.ts";
 
-const mode: "impersonate" | "default" = await select({
-    message: "Choose a mode",
-    default: "impersonate",
-    choices: [
-        { name: "Impersonate a user", value: "impersonate" },
-        { name: "Default", value: "default" },
-    ],
-});
+export const startRepl = async (
+    _roomId: string,
+    baseUrl: URL,
+    user: Impersonator,
+): Promise<void> => {
+    let roomId = _roomId;
 
-const uncleanUrl = await input({
-    message: "Homeserver URL",
-    default: "cpluspatch.dev",
-});
+    const commands: Record<
+        string,
+        (user: Impersonator, args: string[]) => Promise<void> | void
+    > = {
+        exit: async (user) => {
+            await user.leaveRoom(roomId);
+        },
+        impersonate: async (user, [mxid]) => {
+            await user.impersonate(mxid);
+        },
+        setName: async (user, name) => {
+            await user.setDisplayName(name.join(" "));
+        },
+        join: async (user, [room]) => {
+            roomId = await Impersonator.resolveRoomAlias(baseUrl, room);
 
-const baseUrl = new URL(
-    uncleanUrl.startsWith("http") ? uncleanUrl : `https://${uncleanUrl}`,
-);
+            await user.joinRoom(roomId);
+        },
+    };
 
-const spinner = ora("Registering user").start();
-
-const username = `dork${Math.floor(Math.random() * 10000).toString()}`;
-const newUser = await Impersonator.createNew(baseUrl, username, {
-    registrationToken: Bun.env.REGISTRATION_TOKEN,
-});
-
-spinner.succeed("User registered");
-
-if (mode === "impersonate") {
-    const mxid = await input({
-        message: "MXID of impersonated user:",
+    // Start the REPL
+    const rl = createInterface({
+        input: process.stdin,
+        output: process.stdout,
+        terminal: false,
+        prompt: "❯ ",
     });
 
-    await newUser.impersonate(mxid);
-}
+    rl.on("line", async (line) => {
+        if (line.startsWith("/")) {
+            const [command, ...args] = line.slice(1).split(" ");
 
-let roomId = await Impersonator.resolveRoomAlias(
-    baseUrl,
-    await input({
-        message: "Room ID:",
-        default: "#spamtest:cpluspatch.dev",
-    }),
-);
-
-const ora2 = ora("Joining room").start();
-
-await newUser.joinRoom(roomId);
-
-ora2.succeed("Joined room");
-
-const commands: Record<
-    string,
-    (user: Impersonator, args: string[]) => Promise<void> | void
-> = {
-    exit: async (user) => {
-        await user.leaveRoom(roomId);
-    },
-    impersonate: async (user, [mxid]) => {
-        await user.impersonate(mxid);
-    },
-    setName: async (user, name) => {
-        await user.setDisplayName(name.join(" "));
-    },
-    join: async (user, [room]) => {
-        roomId = await Impersonator.resolveRoomAlias(baseUrl, room);
-
-        await user.joinRoom(roomId);
-    },
-};
-
-// Start the REPL
-const rl = createInterface({
-    input: process.stdin,
-    output: process.stdout,
-    terminal: false,
-    prompt: "❯ ",
-});
-
-rl.on("line", async (line) => {
-    if (line.startsWith("/")) {
-        const [command, ...args] = line.slice(1).split(" ");
-
-        if (commands[command]) {
-            await commands[command](newUser, args);
+            if (commands[command]) {
+                await commands[command](user, args);
+            } else {
+                console.info("Unknown command");
+            }
         } else {
-            console.info("Unknown command");
+            await user.sendMessage(roomId, line);
         }
-    } else {
-        await newUser.sendMessage(roomId, line);
-    }
+
+        rl.prompt();
+    });
 
     rl.prompt();
-});
 
-rl.prompt();
-
-await new Promise((resolve) => rl.on("close", resolve));
+    await new Promise((resolve) => rl.on("close", resolve));
+};

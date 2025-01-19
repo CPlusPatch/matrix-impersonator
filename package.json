@@ -4,7 +4,7 @@
     "type": "module",
     "main": "src/index.js",
     "scripts": {
-        "start": "bun src/interactive.ts",
+        "start": "bun --hot index.ts",
         "lint": "bunx @biomejs/biome check ."
     },
     "author": {
